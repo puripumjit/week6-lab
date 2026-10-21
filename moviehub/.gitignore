@@ -1,2 +1,4 @@
 .jwt_secret
 app
+.env
+.jwt_secret

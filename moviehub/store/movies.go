@@ -29,12 +29,14 @@ type MovieDetail struct {
 }
 
 // SearchMovies ค้นหารายชื่อภาพยนตร์ตามชื่อเรื่อง
+// poster_path: ถ้าขึ้นต้นด้วย http ส่งตรง ๆ ไม่งั้นเติมโดเมน TMDB (NULL ยังเป็น NULL)
 func (s *Store) SearchMovies(ctx context.Context, query string) ([]Movie, error) {
 	const q = `
 		SELECT id,
 		       original_title,
 		       COALESCE(title, original_title),
-		       poster_path,
+		       CASE WHEN poster_path LIKE 'http%' THEN poster_path
+		            ELSE 'https://image.tmdb.org/t/p/w500' || poster_path END,
 		       release_date::text,
 		       vote_average,
 		       vote_count,
@@ -69,7 +71,8 @@ func (s *Store) GetMovie(ctx context.Context, id int64) (*MovieDetail, error) {
 		SELECT id,
 		       original_title,
 		       COALESCE(title, original_title),
-		       poster_path,
+		       CASE WHEN poster_path LIKE 'http%' THEN poster_path
+		            ELSE 'https://image.tmdb.org/t/p/w500' || poster_path END,
 		       backdrop_path,
 		       release_date::text,
 		       vote_average,
