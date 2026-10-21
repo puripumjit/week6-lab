@@ -1,30 +1,21 @@
 package mw
 
-import (
-    "net/http"
-    "strings"
-)
+import "net/http"
 
-// CORS อนุญาตเฉพาะ origin ที่อยู่ในรายชื่อ
-func CORS(allowed []string, next http.Handler) http.Handler {
-    ok := map[string]bool{}
-    for _, o := range allowed {
-        ok[strings.TrimSpace(o)] = true
-    }
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        origin := r.Header.Get("Origin")
-        if ok[origin] {
-            h := w.Header()
-            h.Set("Access-Control-Allow-Origin", origin)
-            h.Add("Vary", "Origin")
-            h.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-            h.Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-            h.Set("Access-Control-Max-Age", "600")
-        }
-        if r.Method == http.MethodOptions {
-            w.WriteHeader(http.StatusNoContent)
-            return
-        }
-        next.ServeHTTP(w, r)
-    })
+// Cors จัดการ Header สำหรับ Cross-Origin Resource Sharing และ Preflight request (OPTIONS)
+func Cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// ตอบกลับ Preflight OPTIONS ทันที
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
