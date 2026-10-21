@@ -64,7 +64,7 @@ func (s *Store) SearchMovies(ctx context.Context, query string) ([]Movie, error)
 }
 
 // GetMovie ดึงหนังหนึ่งเรื่องพร้อมเรื่องย่อ
-func (s *Store) GetMovie(ctx context.Context, id int) (*MovieDetail, error) {
+func (s *Store) GetMovie(ctx context.Context, id int64) (*MovieDetail, error) {
 	const q = `
 		SELECT id,
 		       original_title,
